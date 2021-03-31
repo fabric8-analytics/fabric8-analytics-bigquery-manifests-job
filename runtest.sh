@@ -58,9 +58,9 @@ here=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
 
 export PYTHONPATH=${here}/
 
-# Need to use 19.0 version only as some of packages are deprecated in latest PIP version.
-pip3 install pip==19.0 --no-cache-dir
-pip3 install --ignore-installed git+https://github.com/fabric8-analytics/fabric8-analytics-rudra.git@98f5d8f6e402dfed3b9ba9385040eacbb0a12bc3#egg=rudra --no-cache-dir
+# Need to use 19.2.3 version only as some of packages are deprecated in latest PIP version.
+pip3 install pip==19.2.3 --no-cache-dir
+pip3 install git+https://github.com/fabric8-analytics/fabric8-analytics-rudra.git@98f5d8f6e402dfed3b9ba9385040eacbb0a12bc3#egg=rudra --no-cache-dir
 pip3 install -r requirements.txt --no-cache-dir
 pip3 install -r requirements_test.txt --no-cache-dir
 
@@ -68,12 +68,12 @@ pip3 install -r requirements_test.txt --no-cache-dir
 echo "*****************************************"
 echo "*** Cyclomatic complexity measurement ***"
 echo "*****************************************"
-radon cc -s -a -i venv_test .
+#radon cc -s -a -i ^venv .
 
 echo "*****************************************"
 echo "*** Maintainability Index measurement ***"
 echo "*****************************************"
-radon mi -s -i venv_test .
+#radon cc -s -a -i "^venv" .
 
 echo "*****************************************"
 echo "*** Unit tests ***"

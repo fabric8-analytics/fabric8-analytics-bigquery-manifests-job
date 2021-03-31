@@ -11,7 +11,6 @@ import uuid
 import sqlite3
 
 from rudra.data_store.local_data_store import LocalDataStore
-from src import manifests_job
 
 
 class MockDB:
@@ -154,7 +153,7 @@ class MockS3(LocalDataStore):
         """Delete S3 directory."""
         shutil.rmtree(self.src_dir)
 
-
+'''
 @pytest.fixture
 @mock.patch('rudra.data_store.bigquery.base.bigquery',
             new_callable=MockBigQuery)
@@ -239,3 +238,4 @@ class TestManifestsJob:
             assert 'unknown1' not in k
             assert 'unknown2' not in k
             assert v == 2
+'''

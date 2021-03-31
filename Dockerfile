@@ -2,10 +2,9 @@ FROM registry.access.redhat.com/ubi8/ubi-minimal
 
 LABEL maintainer="Dipanjan Sarkar <dsarkar@redhat.com>"
 
+ENV APP_DIR='/fabric8-analytics-bigquery-manifests-job'
 RUN microdnf install python3 git && microdnf clean all && mkdir -p ${APP_DIR}
 
-ENV APP_DIR='/fabric8-analytics-bigquery-manifests-job'
-RUN mkdir -p ${APP_DIR}
 WORKDIR ${APP_DIR}
 
 # Need to use 19.2.3 version only as some of packages are deprecated in latest PIP version.
