@@ -58,9 +58,11 @@ here=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
 
 export PYTHONPATH=${here}/
 
-pip3 install --upgrade pip
-pip3 install -r requirements.txt
-pip3 install --ignore-installed git+https://github.com/fabric8-analytics/fabric8-analytics-rudra.git@4cfac114208cd0f062a1d7ab0e03bb6bc7a490a3#egg=rudra
+# Need to use 19.0 version only as some of packages are deprecated in latest PIP version.
+pip3 install pip==19.0 --no-cache-dir
+pip3 install --ignore-installed git+https://github.com/fabric8-analytics/fabric8-analytics-rudra.git@98f5d8f6e402dfed3b9ba9385040eacbb0a12bc3#egg=rudra --no-cache-dir
+pip3 install -r requirements.txt --no-cache-dir
+pip3 install -r requirements_test.txt --no-cache-dir
 
 
 echo "*****************************************"

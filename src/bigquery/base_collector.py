@@ -14,23 +14,20 @@
 #
 # Author: Dharmendra G Patel <dhpatel@redhat.com>
 #
-"""The main script for the Big Query manifests retrieval."""
-
-import time
-from rudra import logger
-from src.bigquery.bigquery import BQDataProcessing
+"""Base collector class to parse and extract dependencies from manifests."""
+from collections import Counter
 
 
-def main():
-    """Retrieve, process and store the manifest files from Big Query."""
-    logger.info('Initializing Big query object')
-    bigquery_data_processing = BQDataProcessing()
+class BaseCollector:
+    """Base class to handle manifests and extract dependencies."""
 
-    logger.info('Starting big query job')
-    start = time.monotonic()
-    bigquery_data_processing.process(True)
-    logger.info("Finished big query job, time taken: {}".format(time.monotonic() - start))
+    def __init__(self, name):
+        """Contructor for base collector."""
+        self.name = name
+        self.counter = Counter()
 
-
-if __name__ == '__main__':
-    main()
+    def _update_counter(self, packages=list):
+        """Add packages to a collection."""
+        if packages:
+            pkg_string = ', '.join(packages)
+            self.counter.update([pkg_string])
