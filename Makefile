@@ -1,13 +1,12 @@
+REGISTRY ?= quay.io
+DEFAULT_TAG=latest
+DOCKERFILE := Dockerfile
 ifeq ($(TARGET),rhel)
-  DOCKERFILE := Dockerfile.rhel
-  REPOSITORY := openshiftio/rhel-fabric8-analytics-f8a-bq-manifests-job
+  REPOSITORY ?= openshiftio/rhel-fabric8-analytics-f8a-bq-manifests-job
 else
-  DOCKERFILE := Dockerfile
-  REPOSITORY := openshiftio/fabric8-analytics-f8a-bq-manifests-job
+  REPOSITORY ?= openshiftio/fabric8-analytics-f8a-bq-manifests-job
 endif
 
-REGISTRY := quay.io
-DEFAULT_TAG=latest
 
 .PHONY: all docker-build fast-docker-build test get-image-name get-image-repository get-push-registry
 
