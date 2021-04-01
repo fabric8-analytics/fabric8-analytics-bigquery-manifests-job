@@ -1,10 +1,9 @@
-REGISTRY ?= quay.io
-DEFAULT_TAG=latest
-DOCKERFILE := Dockerfile
 ifeq ($(TARGET),rhel)
-  REPOSITORY ?= openshiftio/rhel-fabric8-analytics-f8a-bq-manifests-job
+  DOCKERFILE := Dockerfile.rhel
+  REPOSITORY := openshiftio/rhel-fabric8-analytics-f8a-bq-manifests-job
 else
-  REPOSITORY ?= openshiftio/fabric8-analytics-f8a-bq-manifests-job
+  DOCKERFILE := Dockerfile
+  REPOSITORY := openshiftio/fabric8-analytics-f8a-bq-manifests-job
 endif
 
 

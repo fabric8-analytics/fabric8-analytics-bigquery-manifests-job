@@ -1,4 +1,4 @@
-FROM centos:7
+FROM quay.io/openshiftio/rhel-base-python3:latest
 
 LABEL maintainer="Dipanjan Sarkar <dsarkar@redhat.com>"
 
