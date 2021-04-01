@@ -68,12 +68,12 @@ pip3 install -r requirements_test.txt --no-cache-dir
 echo "*****************************************"
 echo "*** Cyclomatic complexity measurement ***"
 echo "*****************************************"
-#radon cc -s -a -i ^venv .
+radon cc -s -a -e "venv/*,venv_test/*" .
 
 echo "*****************************************"
 echo "*** Maintainability Index measurement ***"
 echo "*****************************************"
-#radon cc -s -a -i "^venv" .
+radon cc -s -a -e "venv/*,venv_test/*" .
 
 echo "*****************************************"
 echo "*** Unit tests ***"

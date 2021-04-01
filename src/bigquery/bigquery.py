@@ -115,7 +115,7 @@ class BQDataProcessing(DataProcessing):
                 logger.warn("Could not find ecosystem for given path %s", path)
                 continue
 
-            self.collectors[ecosystem].parse_and_update(content, validate)
+            self.collectors[ecosystem].parse_and_collect(content, validate)
 
         logger.info("Processed %d manifests in time: %f", index, time.monotonic() - start)
         self._update_s3()

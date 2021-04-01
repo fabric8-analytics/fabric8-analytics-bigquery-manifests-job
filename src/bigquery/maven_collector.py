@@ -27,7 +27,7 @@ class MavenCollector(BaseCollector):
         """Contructor for maven collectors."""
         super().__init__('maven')
 
-    def parse_and_update(self, content, _):
+    def parse_and_collect(self, content, _):
         """Parse dependencies and add it to collection."""
         result = list()
         allowed_scopes = ['compile', 'run', 'provided']

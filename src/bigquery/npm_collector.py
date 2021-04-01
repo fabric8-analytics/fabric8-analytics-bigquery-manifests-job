@@ -28,7 +28,7 @@ class NpmCollector(BaseCollector):
         """Contructor for npm collector."""
         super().__init__('npm')
 
-    def parse_and_update(self, content, _):
+    def parse_and_collect(self, content, _):
         """Parse dependencies and add it to collection."""
         content = content.decode() if not isinstance(content, str) else content
         dependencies = {}

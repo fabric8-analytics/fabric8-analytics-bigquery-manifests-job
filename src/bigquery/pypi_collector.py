@@ -29,7 +29,7 @@ class PypiCollector(BaseCollector):
         super().__init__('pypi')
         self.bq_validation = BQValidation()
 
-    def parse_and_update(self, content, validate):
+    def parse_and_collect(self, content, validate):
         """Parse dependencies and add it to collection."""
         packages = None
         try:
