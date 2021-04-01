@@ -58,8 +58,9 @@ here=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
 
 export PYTHONPATH=${here}/
 
-pip install -r requirements.txt
-pip install --ignore-installed git+https://github.com/fabric8-analytics/fabric8-analytics-rudra.git@4cfac114208cd0f062a1d7ab0e03bb6bc7a490a3#egg=rudra
+pip3 install --upgrade pip
+pip3 install -r requirements.txt
+pip3 install --ignore-installed git+https://github.com/fabric8-analytics/fabric8-analytics-rudra.git@4cfac114208cd0f062a1d7ab0e03bb6bc7a490a3#egg=rudra
 
 
 echo "*****************************************"
@@ -79,5 +80,7 @@ echo "*****************************************"
 echo "Starting test suite"
 DISABLE_AUTHENTICATION=1 PYTHONDONTWRITEBYTECODE=1 python "$(which pytest)" --cov=./src/ --cov-report term-missing --cov-fail-under=$COVERAGE_THRESHOLD -vv ./tests/
 printf "%stests passed%s\n\n" "${GREEN}" "${NORMAL}"
+
+`which codecov` --token=5c0f0ca6-c3aa-407f-9b61-07830d9325e5
 
 rm -rf venv_test
