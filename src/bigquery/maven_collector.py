@@ -42,7 +42,7 @@ class MavenCollector(BaseCollector):
                     result.append('{g}:{a}'.format(
                         g=gid.strip(), a=aid.strip()))
         except Exception as _exc:
-            logger.warn("IGNORE THIS ERROR {}".format(_exc))
-            logger.warn("CONTENT: {}".format(content))
+            logger.warning("IGNORE THIS ERROR {}".format(_exc))
+            logger.warning("CONTENT: {}".format(content))
 
         self._update_counter(result)

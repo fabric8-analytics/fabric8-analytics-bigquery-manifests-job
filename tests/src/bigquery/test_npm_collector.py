@@ -15,7 +15,6 @@
 # Author: Dharmendra G Patel <dhpatel@redhat.com>
 #
 """Test npm manifests and extract dependencies."""
-import pytest
 from src.bigquery.npm_collector import NpmCollector
 
 MANIFEST_START = """
@@ -62,9 +61,12 @@ INVALID_DEP_1 = """
     "core-js": "2.6.10",
 """
 
+
 class TestNpmCollector:
+    """NPM collector test cases."""
 
     def test_single_dep(self):
+        """Test single dep."""
         collector = NpmCollector()
         collector.parse_and_collect(MANIFEST_START + DEP_1 + MANIFEST_END, True)
         packages = dict(collector.counter.most_common())
@@ -73,6 +75,7 @@ class TestNpmCollector:
         assert list(packages.values())[0] == 1
 
     def test_multiple_manifest_with_single_dep(self):
+        """Test muitple manifest with same deps."""
         collector = NpmCollector()
         collector.parse_and_collect(MANIFEST_START + DEP_1 + MANIFEST_END, True)
         collector.parse_and_collect(MANIFEST_START + DEP_1 + MANIFEST_END, True)
@@ -83,6 +86,7 @@ class TestNpmCollector:
         assert list(packages.values())[0] == 3
 
     def test_multiple_dep(self):
+        """Test mutiple deps."""
         collector = NpmCollector()
         collector.parse_and_collect(MANIFEST_START + DEP_1 + DEP_2 + MANIFEST_END, True)
         packages = dict(collector.counter.most_common())
@@ -91,6 +95,7 @@ class TestNpmCollector:
         assert list(packages.values())[0] == 1
 
     def test_multiple_manifest_multiple_dep(self):
+        """Test multiple manifest with multiple deps."""
         collector = NpmCollector()
         collector.parse_and_collect(MANIFEST_START + DEP_1 + DEP_2 + MANIFEST_END, True)
         collector.parse_and_collect(MANIFEST_START + DEP_1 + DEP_2 + MANIFEST_END, True)
@@ -100,6 +105,7 @@ class TestNpmCollector:
         assert list(packages.values())[0] == 2
 
     def test_multiple_manifests(self):
+        """Test multiple manifests."""
         collector = NpmCollector()
         collector.parse_and_collect(MANIFEST_START + DEP_1 + MANIFEST_END, True)
         collector.parse_and_collect(MANIFEST_START + DEP_2 + MANIFEST_END, True)
@@ -112,6 +118,7 @@ class TestNpmCollector:
         assert list(packages.keys())[2] == 'ejs'
 
     def test_invalid_dep(self):
+        """Test manifest with invalid deps."""
         collector = NpmCollector()
         collector.parse_and_collect(MANIFEST_START + INVALID_DEP_1 + MANIFEST_END, True)
         packages = dict(collector.counter.most_common())
@@ -120,23 +127,29 @@ class TestNpmCollector:
         assert list(packages.values())[0] == 1
 
     def test_corrupt_manifest(self):
+        """Test corrupt / incomplete manifest."""
         collector = NpmCollector()
-        collector.parse_and_collect(MANIFEST_START.replace('"repository": {', '') + DEP_1 + MANIFEST_END, True)
+        collector.parse_and_collect(
+            MANIFEST_START.replace('"repository": {', '') + DEP_1 + MANIFEST_END, True)
         packages = dict(collector.counter.most_common())
         assert len(packages) == 1
         assert list(packages.keys())[0] == 'body-parser'
         assert list(packages.values())[0] == 1
 
     def test_corrupt_dep_section(self):
+        """Test corrupt / missing deps section in manifest."""
         collector = NpmCollector()
-        collector.parse_and_collect(MANIFEST_START.replace('"dependencies": {', '') + DEP_1 + MANIFEST_END, True)
+        collector.parse_and_collect(
+            MANIFEST_START.replace('"dependencies": {', '') + DEP_1 + MANIFEST_END, True)
         packages = dict(collector.counter.most_common())
         assert len(packages) == 0
 
     def test_valid_and_corrupt_dep_section(self):
+        """Test a mix of valid and corrupt deps in manifests."""
         collector = NpmCollector()
         collector.parse_and_collect(MANIFEST_START + DEP_1 + MANIFEST_END, True)
-        collector.parse_and_collect(MANIFEST_START.replace('"dependencies": {', '') + DEP_1 + MANIFEST_END, True)
+        collector.parse_and_collect(
+            MANIFEST_START.replace('"dependencies": {', '') + DEP_1 + MANIFEST_END, True)
         packages = dict(collector.counter.most_common())
         assert len(packages) == 1
         assert list(packages.keys())[0] == 'body-parser'

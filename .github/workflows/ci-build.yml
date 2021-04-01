@@ -5,19 +5,19 @@ on:
     branches: [ master ]
    pull_request:
     branches: [ master ]
-   
+
 jobs:
   Code-Quality-Checks:
     runs-on: ubuntu-latest
     strategy:
-      matrix: 
+      matrix:
         scripts:
           - run-linter
           - check-docstyle
           - detect-dead-code
           - detect-common-errors
           - measure-cyclomatic-complexity
-          - measure-maintainability-index    
+          - measure-maintainability-index
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python 3.6
@@ -37,14 +37,14 @@ jobs:
       with:
         python-version: '3.6'
     - name: Install Test Dependencies
-      run: pip install pip==19.2.3 && pip install -r requirements.txt && pip install --ignore-installed git+https://github.com/fabric8-analytics/fabric8-analytics-rudra.git@4cfac114208cd0f062a1d7ab0e03bb6bc7a490a3#egg=rudra 
+      run: pip install pip==19.2.3 && pip install --ignore-installed git+https://github.com/fabric8-analytics/fabric8-analytics-rudra.git@98f5d8f6e402dfed3b9ba9385040eacbb0a12bc3#egg=rudra && pip install -r requirements.txt && pip install -r requirements_test.txt
     - name: Run Unit Tests
       run: DISABLE_AUTHENTICATION=1 PYTHONDONTWRITEBYTECODE=1 python "$(which pytest)" --cov=./src/ --cov-report term-missing --cov-fail-under=15 -vv ./tests/
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v1
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
-        file: ./coverage.xml  
+        file: ./coverage.xml
   openshift-yaml-validate:
     runs-on: ubuntu-latest
     steps:
@@ -64,4 +64,4 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Run Docker Build
-      run: docker build --no-cache -t tests-image -f Dockerfile . 
+      run: docker build --no-cache -t tests-image -f Dockerfile .

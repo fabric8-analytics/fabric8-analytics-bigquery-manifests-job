@@ -103,7 +103,7 @@ class BQDataProcessing(DataProcessing):
             content = object.get('content')
 
             if not path or not content:
-                logger.warn("Either path %s or content %s is null", path, content)
+                logger.warning("Either path %s or content %s is null", path, content)
                 continue
 
             ecosystem = None
@@ -112,7 +112,7 @@ class BQDataProcessing(DataProcessing):
                     ecosystem = _ecosystem
 
             if not ecosystem:
-                logger.warn("Could not find ecosystem for given path %s", path)
+                logger.warning("Could not find ecosystem for given path %s", path)
                 continue
 
             self.collectors[ecosystem].parse_and_collect(content, validate)

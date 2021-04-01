@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 """Tests the ManifestsJob Class."""
 
-import pytest
+# import pytest
 from unittest import mock
 import json
 import shutil
 import pathlib
-import tempfile
+# import tempfile
 import uuid
 import sqlite3
 
@@ -152,6 +152,7 @@ class MockS3(LocalDataStore):
     def __del__(self):
         """Delete S3 directory."""
         shutil.rmtree(self.src_dir)
+
 
 '''
 @pytest.fixture

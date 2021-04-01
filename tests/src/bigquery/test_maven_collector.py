@@ -15,7 +15,6 @@
 # Author: Dharmendra G Patel <dhpatel@redhat.com>
 #
 """Test maven manifests and extract dependencies."""
-import pytest
 from src.bigquery.maven_collector import MavenCollector
 
 MANIFEST_START = """
@@ -66,9 +65,12 @@ TEST_DEP_2 = """
     </dependency>
 """
 
+
 class TestMavenCollector:
+    """Maven collector test cases."""
 
     def test_single_dep(self):
+        """Test single dep."""
         collector = MavenCollector()
         collector.parse_and_collect(MANIFEST_START + DEP_1 + MANIFEST_END, True)
         packages = dict(collector.counter.most_common())
@@ -77,6 +79,7 @@ class TestMavenCollector:
         assert list(packages.values())[0] == 1
 
     def test_multiple_manifest_with_single_dep(self):
+        """Test muitple manifest with same deps."""
         collector = MavenCollector()
         collector.parse_and_collect(MANIFEST_START + DEP_1 + MANIFEST_END, True)
         collector.parse_and_collect(MANIFEST_START + DEP_1 + MANIFEST_END, True)
@@ -87,6 +90,7 @@ class TestMavenCollector:
         assert list(packages.values())[0] == 3
 
     def test_single_dep_test_dep(self):
+        """Test single dep and a test dep."""
         collector = MavenCollector()
         collector.parse_and_collect(MANIFEST_START + DEP_1 + TEST_DEP_1 + MANIFEST_END, True)
         packages = dict(collector.counter.most_common())
@@ -95,57 +99,73 @@ class TestMavenCollector:
         assert list(packages.values())[0] == 1
 
     def test_multiple_dep(self):
+        """Test mutiple deps."""
         collector = MavenCollector()
         collector.parse_and_collect(MANIFEST_START + DEP_1 + DEP_2 + MANIFEST_END, True)
         packages = dict(collector.counter.most_common())
         assert len(packages) == 1
-        assert list(packages.keys())[0] == 'org.springframework:spring-websocket, org.springframework.boot:spring-boot-starter-web'
+        assert list(packages.keys())[0] == 'org.springframework:spring-websocket, ' \
+                                           'org.springframework.boot:spring-boot-starter-web'
         assert list(packages.values())[0] == 1
 
     def test_multiple_manifest_multiple_dep(self):
+        """Test multiple manifest with multiple deps."""
         collector = MavenCollector()
         collector.parse_and_collect(MANIFEST_START + DEP_1 + DEP_2 + MANIFEST_END, True)
         collector.parse_and_collect(MANIFEST_START + DEP_1 + DEP_2 + MANIFEST_END, True)
         packages = dict(collector.counter.most_common())
         assert len(packages) == 1
-        assert list(packages.keys())[0] == 'org.springframework:spring-websocket, org.springframework.boot:spring-boot-starter-web'
+        assert list(packages.keys())[0] == 'org.springframework:spring-websocket, ' \
+                                           'org.springframework.boot:spring-boot-starter-web'
         assert list(packages.values())[0] == 2
 
     def test_multiple_dep_test_dep(self):
+        """Test multiple deps with a test dep."""
         collector = MavenCollector()
-        collector.parse_and_collect(MANIFEST_START + DEP_1 + DEP_2 + TEST_DEP_1 + MANIFEST_END, True)
+        collector.parse_and_collect(
+            MANIFEST_START + DEP_1 + DEP_2 + TEST_DEP_1 + MANIFEST_END, True)
         packages = dict(collector.counter.most_common())
         assert len(packages) == 1
-        assert list(packages.keys())[0] == 'org.springframework:spring-websocket, org.springframework.boot:spring-boot-starter-web'
+        assert list(packages.keys())[0] == 'org.springframework:spring-websocket, ' \
+                                           'org.springframework.boot:spring-boot-starter-web'
         assert list(packages.values())[0] == 1
 
     def test_multiple_dep_multiple_test_dep(self):
+        """Test multiple deps and multiple test deps."""
         collector = MavenCollector()
-        collector.parse_and_collect(MANIFEST_START + DEP_1 + TEST_DEP_1 + DEP_2 + TEST_DEP_2 + MANIFEST_END, True)
+        collector.parse_and_collect(
+            MANIFEST_START + DEP_1 + TEST_DEP_1 + DEP_2 + TEST_DEP_2 + MANIFEST_END, True)
         packages = dict(collector.counter.most_common())
         assert len(packages) == 1
-        assert list(packages.keys())[0] == 'org.springframework:spring-websocket, org.springframework.boot:spring-boot-starter-web'
+        assert list(packages.keys())[0] == 'org.springframework:spring-websocket, ' \
+                                           'org.springframework.boot:spring-boot-starter-web'
         assert list(packages.values())[0] == 1
 
     def test_multiple_manifests(self):
+        """Test multiple manifests."""
         collector = MavenCollector()
         collector.parse_and_collect(MANIFEST_START + DEP_1 + MANIFEST_END, True)
         collector.parse_and_collect(MANIFEST_START + DEP_2 + MANIFEST_END, True)
-        collector.parse_and_collect(MANIFEST_START + DEP_1 + TEST_DEP_1 + DEP_2 + TEST_DEP_2 + MANIFEST_END, True)
-        collector.parse_and_collect(MANIFEST_START + DEP_1 + TEST_DEP_1 + DEP_2 + TEST_DEP_2 + MANIFEST_END, True)
+        collector.parse_and_collect(
+            MANIFEST_START + DEP_1 + TEST_DEP_1 + DEP_2 + TEST_DEP_2 + MANIFEST_END, True)
+        collector.parse_and_collect(
+            MANIFEST_START + DEP_1 + TEST_DEP_1 + DEP_2 + TEST_DEP_2 + MANIFEST_END, True)
         packages = dict(collector.counter.most_common())
         assert len(packages) == 3
-        assert list(packages.keys())[0] == 'org.springframework:spring-websocket, org.springframework.boot:spring-boot-starter-web'
+        assert list(packages.keys())[0] == 'org.springframework:spring-websocket, ' \
+                                           'org.springframework.boot:spring-boot-starter-web'
         assert list(packages.keys())[1] == 'org.springframework:spring-websocket'
         assert list(packages.keys())[2] == 'org.springframework.boot:spring-boot-starter-web'
 
     def test_empty_manifest(self):
+        """Test empty / invalid manifest."""
         collector = MavenCollector()
         collector.parse_and_collect(None, True)
         packages = dict(collector.counter.most_common())
         assert len(packages) == 0
 
     def test_valid_and_empty_manifest(self):
+        """Test a mix of empty and valid manifests."""
         collector = MavenCollector()
         collector.parse_and_collect(MANIFEST_START + DEP_1 + MANIFEST_END, True)
         collector.parse_and_collect(None, True)

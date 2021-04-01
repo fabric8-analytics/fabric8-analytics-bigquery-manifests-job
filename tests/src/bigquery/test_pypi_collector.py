@@ -15,7 +15,6 @@
 # Author: Dharmendra G Patel <dhpatel@redhat.com>
 #
 """Test pypi manifests and extract dependencies."""
-import pytest
 from src.bigquery.pypi_collector import PypiCollector
 
 MANIFEST_START = """
@@ -37,9 +36,12 @@ pydantic==1.8.1
     # via -r requirements.in
 """
 
+
 class TestPypiCollector:
+    """Pypi collector test cases."""
 
     def test_single_dep(self):
+        """Test single dep."""
         collector = PypiCollector()
         collector.parse_and_collect(MANIFEST_START + DEP_1, True)
         packages = dict(collector.counter.most_common())
@@ -48,6 +50,7 @@ class TestPypiCollector:
         assert list(packages.values())[0] == 1
 
     def test_multiple_manifest_with_single_dep(self):
+        """Test muitple manifest with same deps."""
         collector = PypiCollector()
         collector.parse_and_collect(MANIFEST_START + DEP_1, True)
         collector.parse_and_collect(MANIFEST_START + DEP_1, True)
@@ -58,6 +61,7 @@ class TestPypiCollector:
         assert list(packages.values())[0] == 3
 
     def test_multiple_dep(self):
+        """Test mutiple deps."""
         collector = PypiCollector()
         collector.parse_and_collect(MANIFEST_START + DEP_1 + DEP_2, True)
         packages = dict(collector.counter.most_common())
@@ -66,6 +70,7 @@ class TestPypiCollector:
         assert list(packages.values())[0] == 1
 
     def test_multiple_manifest_multiple_dep(self):
+        """Test multiple manifest with multiple deps."""
         collector = PypiCollector()
         collector.parse_and_collect(MANIFEST_START + DEP_1 + DEP_2, True)
         collector.parse_and_collect(MANIFEST_START + DEP_1 + DEP_2, True)
@@ -75,6 +80,7 @@ class TestPypiCollector:
         assert list(packages.values())[0] == 2
 
     def test_multiple_manifests(self):
+        """Test multiple manifests."""
         collector = PypiCollector()
         collector.parse_and_collect(MANIFEST_START + DEP_1, True)
         collector.parse_and_collect(MANIFEST_START + DEP_2, True)
@@ -87,12 +93,14 @@ class TestPypiCollector:
         assert list(packages.keys())[2] == 'pydantic'
 
     def test_empty_manifest(self):
+        """Test empty / invalid manifest."""
         collector = PypiCollector()
         collector.parse_and_collect(None, True)
         packages = dict(collector.counter.most_common())
         assert len(packages) == 0
 
     def test_valid_and_empty_manifest(self):
+        """Test a mix of empty and valid manifests."""
         collector = PypiCollector()
         collector.parse_and_collect(MANIFEST_START + DEP_1, True)
         collector.parse_and_collect(None, True)
