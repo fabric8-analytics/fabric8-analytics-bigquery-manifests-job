@@ -37,9 +37,9 @@ jobs:
       with:
         python-version: '3.6'
     - name: Install Test Dependencies
-      run: pip install -U pip && pip install virtualenv
+      run: pip install -U pip && pip install -r requirements.txt && pip install --ignore-installed git+https://github.com/fabric8-analytics/fabric8-analytics-rudra.git@4cfac114208cd0f062a1d7ab0e03bb6bc7a490a3#egg=rudra 
     - name: Run Unit Tests
-      run: ./runtest.sh
+      run: DISABLE_AUTHENTICATION=1 PYTHONDONTWRITEBYTECODE=1 python "$(which pytest)" --cov=./src/ --cov-report term-missing --cov-fail-under=$COVERAGE_THRESHOLD -vv ./tests/
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v1
       with:
