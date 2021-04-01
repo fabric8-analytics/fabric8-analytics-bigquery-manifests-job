@@ -81,6 +81,4 @@ echo "Starting test suite"
 DISABLE_AUTHENTICATION=1 PYTHONDONTWRITEBYTECODE=1 python "$(which pytest)" --cov=./src/ --cov-report term-missing --cov-fail-under=$COVERAGE_THRESHOLD -vv ./tests/
 printf "%stests passed%s\n\n" "${GREEN}" "${NORMAL}"
 
-`which codecov` --token=5c0f0ca6-c3aa-407f-9b61-07830d9325e5
-
 rm -rf venv_test
