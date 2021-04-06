@@ -24,8 +24,6 @@ from src.config.settings import GCP_SETTINGS
 from google.cloud.bigquery.job import QueryJobConfig
 from google.cloud.bigquery.client import Client
 
-_POLLING_DELAY = 1  # sec
-
 
 class BigqueryBuilder:
     """BigqueryBuilder class Implementation."""

@@ -62,8 +62,7 @@ class Bigquery(BigqueryBuilder):
                         )
                     )
             ) AS L
-            ON con.id = L.id
-            LIMIT 1000;
+            ON con.id = L.id;
         """.format(m=ECOSYSTEM_MANIFEST_MAP['maven'],
                    p=ECOSYSTEM_MANIFEST_MAP['pypi'],
                    n=ECOSYSTEM_MANIFEST_MAP['npm'])

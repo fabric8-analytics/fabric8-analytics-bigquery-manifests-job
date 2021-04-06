@@ -108,7 +108,7 @@ class TestBigQuery(unittest.TestCase):
     def test_big_query(self, _c, _qjc):
         """Test big query."""
         bq = Bigquery()
-        assert len(bq.query) == 1065
+        assert len(bq.query) == 1042
         assert bq.client is not None
 
     @patch('src.bigquery.bigquery.AmazonS3', new_callable=MockAmazonS3)
