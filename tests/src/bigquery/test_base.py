@@ -35,7 +35,7 @@ class MockClient(mock.Mock):
         """Mock job query class."""
 
         def __init__(self, job_id):
-            """Contructor for job query."""
+            """Set job id and run count."""
             self.job_id = job_id
             self.run_count = 0
 

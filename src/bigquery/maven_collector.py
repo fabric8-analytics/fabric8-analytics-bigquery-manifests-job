@@ -24,7 +24,7 @@ class MavenCollector(BaseCollector):
     """Handle maven manifests and extract dependencies."""
 
     def __init__(self):
-        """Contructor for maven collectors."""
+        """Maven collectors init."""
         super().__init__('maven')
 
     def parse_and_collect(self, content, _):
@@ -41,8 +41,7 @@ class MavenCollector(BaseCollector):
                 if scope in allowed_scopes and aid and gid:
                     result.append('{g}:{a}'.format(
                         g=gid.strip(), a=aid.strip()))
-        except Exception as _exc:
-            logger.warning("IGNORE THIS ERROR {}".format(_exc))
-            logger.warning("CONTENT: {}".format(content))
+        except Exception as e:
+            logger.warning('Error in content, it raises %s', e)
 
         self._update_counter(result)

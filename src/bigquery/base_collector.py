@@ -22,7 +22,7 @@ class BaseCollector:
     """Base class to handle manifests and extract dependencies."""
 
     def __init__(self, name):
-        """Contructor for base collector."""
+        """Collector init."""
         self.name = name
         self.counter = Counter()
 

@@ -93,17 +93,16 @@ class DataProcessing:
         # connect after creating or with existing s3 client
         self.s3_client.connect()
         if not self.s3_client.is_connected():
-            raise ValueError("Unable to connect to s3.")
+            raise ValueError('Unable to connect to s3.')
 
         json_data = dict()
 
         if self.s3_client.object_exists(filename):
-            logger.info("{} exists, updating it.".format(filename))
+            logger.info('%s exists, updating it.', filename)
             json_data = self.s3_client.read_json_file(filename)
             if not json_data:
-                raise ValueError("Unable to get the json data path:{}/{}"
-                                 .format(bucket_name, filename))
+                raise ValueError(f'Unable to get the json data path:{bucket_name}/{filename}')
 
         json_data.update(data)
         self.s3_client.write_json_file(filename, json_data)
-        logger.info("Updated file Succefully!")
+        logger.info('Updated file Succefully!')

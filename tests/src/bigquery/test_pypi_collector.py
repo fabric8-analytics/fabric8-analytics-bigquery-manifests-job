@@ -45,9 +45,9 @@ class TestPypiCollector:
         collector = PypiCollector()
         collector.parse_and_collect(MANIFEST_START + DEP_1, True)
         packages = dict(collector.counter.most_common())
-        assert len(packages) == 1
-        assert list(packages.keys())[0] == 'daiquiri'
-        assert list(packages.values())[0] == 1
+        assert packages == {
+            'daiquiri': 1
+        }
 
     def test_multiple_manifest_with_single_dep(self):
         """Test muitple manifest with same deps."""
@@ -56,18 +56,18 @@ class TestPypiCollector:
         collector.parse_and_collect(MANIFEST_START + DEP_1, True)
         collector.parse_and_collect(MANIFEST_START + DEP_1, True)
         packages = dict(collector.counter.most_common())
-        assert len(packages) == 1
-        assert list(packages.keys())[0] == 'daiquiri'
-        assert list(packages.values())[0] == 3
+        assert packages == {
+            'daiquiri': 3
+        }
 
     def test_multiple_dep(self):
         """Test mutiple deps."""
         collector = PypiCollector()
         collector.parse_and_collect(MANIFEST_START + DEP_1 + DEP_2, True)
         packages = dict(collector.counter.most_common())
-        assert len(packages) == 1
-        assert list(packages.keys())[0] == 'daiquiri, pydantic'
-        assert list(packages.values())[0] == 1
+        assert packages == {
+            'daiquiri, pydantic': 1
+        }
 
     def test_multiple_manifest_multiple_dep(self):
         """Test multiple manifest with multiple deps."""
@@ -75,9 +75,9 @@ class TestPypiCollector:
         collector.parse_and_collect(MANIFEST_START + DEP_1 + DEP_2, True)
         collector.parse_and_collect(MANIFEST_START + DEP_1 + DEP_2, True)
         packages = dict(collector.counter.most_common())
-        assert len(packages) == 1
-        assert list(packages.keys())[0] == 'daiquiri, pydantic'
-        assert list(packages.values())[0] == 2
+        assert packages == {
+            'daiquiri, pydantic': 2
+        }
 
     def test_multiple_manifests(self):
         """Test multiple manifests."""
@@ -87,17 +87,18 @@ class TestPypiCollector:
         collector.parse_and_collect(MANIFEST_START + DEP_1 + DEP_2, True)
         collector.parse_and_collect(MANIFEST_START + DEP_1 + DEP_2, True)
         packages = dict(collector.counter.most_common())
-        assert len(packages) == 3
-        assert list(packages.keys())[0] == 'daiquiri, pydantic'
-        assert list(packages.keys())[1] == 'daiquiri'
-        assert list(packages.keys())[2] == 'pydantic'
+        assert packages == {
+            'daiquiri, pydantic': 2,
+            'daiquiri': 1,
+            'pydantic': 1
+        }
 
     def test_empty_manifest(self):
         """Test empty / invalid manifest."""
         collector = PypiCollector()
         collector.parse_and_collect(None, True)
         packages = dict(collector.counter.most_common())
-        assert len(packages) == 0
+        assert packages == {}
 
     def test_valid_and_empty_manifest(self):
         """Test a mix of empty and valid manifests."""
@@ -105,6 +106,6 @@ class TestPypiCollector:
         collector.parse_and_collect(MANIFEST_START + DEP_1, True)
         collector.parse_and_collect(None, True)
         packages = dict(collector.counter.most_common())
-        assert len(packages) == 1
-        assert list(packages.keys())[0] == 'daiquiri'
-        assert list(packages.values())[0] == 1
+        assert packages == {
+            'daiquiri': 1
+        }

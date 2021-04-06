@@ -29,7 +29,7 @@ def main():
     logger.info('Starting big query job')
     start = time.monotonic()
     bigquery_data_processing.process(True)
-    logger.info("Finished big query job, time taken: {}".format(time.monotonic() - start))
+    logger.info('Finished big query job, time taken: %f', time.monotonic() - start)
 
 
 if __name__ == '__main__':

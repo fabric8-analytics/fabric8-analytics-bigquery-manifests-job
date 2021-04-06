@@ -93,7 +93,7 @@ class BQDataProcessing(DataProcessing):
 
         start = time.monotonic()
         index = 0
-        logger.info("Running Bigquery synchronously")
+        logger.info('Running Bigquery synchronously')
         self.big_query_instance.run_query_sync()
         for object in self.big_query_instance.get_result():
             index += 1
@@ -102,7 +102,7 @@ class BQDataProcessing(DataProcessing):
             content = object.get('content', None)
 
             if not path or not content:
-                logger.warning("Either path %s or content %s is null", path, content)
+                logger.warning('Either path %s or content %s is null', path, content)
                 continue
 
             ecosystem = None
@@ -111,15 +111,15 @@ class BQDataProcessing(DataProcessing):
                     ecosystem = _ecosystem
 
             if not ecosystem:
-                logger.warning("Could not find ecosystem for given path %s", path)
+                logger.warning('Could not find ecosystem for given path %s', path)
                 continue
 
             self.collectors[ecosystem].parse_and_collect(content, validate)
 
-        logger.info("Processed %d manifests in time: %f", index, time.monotonic() - start)
+        logger.info('Processed %d manifests in time: %f', index, time.monotonic() - start)
         self._update_s3()
 
-    def _get_collector(self, ecosystem=str) -> BaseCollector:
+    def _get_collector(self, ecosystem) -> BaseCollector:
         if ecosystem == 'maven':
             return MavenCollector()
 
@@ -130,7 +130,7 @@ class BQDataProcessing(DataProcessing):
             return PypiCollector()
 
     def _update_s3(self):
-        logger.info("Updating file content to S3")
+        logger.info('Updating file content to S3')
         data = {}
         for ecosystem, object in self.collectors.items():
             data[ecosystem] = dict(object.counter.most_common())
@@ -139,4 +139,4 @@ class BQDataProcessing(DataProcessing):
                               bucket_name=AWS_SETTINGS.s3_bucket_name,
                               filename=self.filename)
 
-        logger.info("Succefully Processed the BigQuery")
+        logger.info('Succefully Processed the BigQuery')

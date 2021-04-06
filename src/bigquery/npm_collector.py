@@ -25,7 +25,7 @@ class NpmCollector(BaseCollector):
     """Handle NPM manifests and extract dependencies."""
 
     def __init__(self):
-        """Contructor for npm collector."""
+        """Npm collector init."""
         super().__init__('npm')
 
     def parse_and_collect(self, content, _):
@@ -34,8 +34,8 @@ class NpmCollector(BaseCollector):
         dependencies = {}
         try:
             decoded_json = demjson.decode(content)
-        except Exception as _exc:
-            logger.error("IGNORE {}".format(str(_exc)))
+        except Exception as e:
+            logger.warning('Error in content, it raises %s', e)
             decoded_json = self._handle_corrupt_packagejson(content)
         if decoded_json and isinstance(decoded_json, dict):
             dependencies = decoded_json.get('dependencies', {})
@@ -60,6 +60,6 @@ class NpmCollector(BaseCollector):
                             matches['pkg'], matches['ver']))
 
             return demjson.decode('{"dependencies": {%s}}' % ', '.join(dependencies))
-        except Exception as _exc:
-            logger.error("IGNORE {}".format(str(_exc)))
+        except Exception as e:
+            logger.warning('Error in content, it raises %s', e)
             return {}

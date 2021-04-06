@@ -25,7 +25,7 @@ class PypiCollector(BaseCollector):
     """Handle Pypi manifests and extract dependencies."""
 
     def __init__(self):
-        """Contructor for pypi collector."""
+        """Initialize BG validation."""
         super().__init__('pypi')
         self.bq_validation = BQValidation()
 
@@ -33,14 +33,10 @@ class PypiCollector(BaseCollector):
         """Parse dependencies and add it to collection."""
         packages = None
         try:
-            packages = sorted(
-                {p for p in pip_req.parse_requirements(content)})
+            packages = sorted({p for p in pip_req.parse_requirements(content)})
             if validate:
-                packages = sorted(
-                    self.bq_validation.validate_pypi(packages))
-        except Exception as _exc:
-            logger.error("IGNORE: {}".format(_exc))
-            logger.error(
-                "Failed to parse content data {}".format(content))
+                packages = sorted(self.bq_validation.validate_pypi(packages))
+        except Exception as e:
+            logger.warning('Error in content, it raises %s', e)
 
         self._update_counter(packages)
