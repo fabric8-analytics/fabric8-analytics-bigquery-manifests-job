@@ -24,8 +24,6 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: '3.6'
-    - name: Install virtualenv
-      run: pip install -U pip && pip install virtualenv
     - name: ${{ matrix.scripts }}
       run: bash ${{ matrix.scripts }}.sh;
   Unit-Tests:
@@ -36,15 +34,8 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: '3.6'
-    - name: Install Test Dependencies
-      run: pip install pip==19.2.3 && pip install --ignore-installed git+https://github.com/fabric8-analytics/fabric8-analytics-rudra.git@98f5d8f6e402dfed3b9ba9385040eacbb0a12bc3#egg=rudra && pip install -r requirements.txt && pip install -r requirements_test.txt
-    - name: Run Unit Tests
-      run: DISABLE_AUTHENTICATION=1 PYTHONDONTWRITEBYTECODE=1 python "$(which pytest)" --cov=./src/ --cov-report term-missing --cov-fail-under=15 -vv ./tests/
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v1
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        file: ./coverage.xml
+    - name: Run unit tests
+      run: bash runtest.sh;
   openshift-yaml-validate:
     runs-on: ubuntu-latest
     steps:
