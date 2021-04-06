@@ -35,9 +35,9 @@ ECOSYSTEM_MANIFEST_MAP = {
 class Bigquery(BigqueryBuilder):
     """Base big query class."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self):
         """Initialize MavenBigQuery object."""
-        super().__init__(*args, **kwargs)
+        super().__init__()
         self.query_job_config.use_legacy_sql = False
         self.query_job_config.use_query_cache = True
         self.query = """
@@ -99,8 +99,8 @@ class BQDataProcessing(DataProcessing):
         for object in self.big_query_instance.get_result():
             index += 1
 
-            path = object.get('path')
-            content = object.get('content')
+            path = object.get('path', None)
+            content = object.get('content', None)
 
             if not path or not content:
                 logger.warning("Either path %s or content %s is null", path, content)
@@ -129,8 +129,6 @@ class BQDataProcessing(DataProcessing):
 
         if ecosystem == 'pypi':
             return PypiCollector()
-
-        return None
 
     def _update_s3(self):
         logger.info("Updating file content to S3")

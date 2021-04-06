@@ -21,7 +21,8 @@ import time
 import tempfile
 from rudra import logger
 from src.config.settings import GCP_SETTINGS
-from google.cloud import bigquery
+from google.cloud.bigquery.job import QueryJobConfig
+from google.cloud.bigquery.client import Client
 
 _POLLING_DELAY = 1  # sec
 
@@ -29,7 +30,7 @@ _POLLING_DELAY = 1  # sec
 class BigqueryBuilder:
     """BigqueryBuilder class Implementation."""
 
-    def __init__(self, query_job_config=None):
+    def __init__(self):
         """Initialize the BigqueryBuilder object."""
         logger.info('Storing BigQuery Auth Credentials')
         key_file_contents = {
@@ -53,66 +54,31 @@ class BigqueryBuilder:
         os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = self.credential_path
         logger.info('GOOGLE_APPLICATION_CREDENTIALS %s', self.credential_path)
 
-        if isinstance(query_job_config, bigquery.job.QueryJobConfig):
-            logger.info('Using given query job configuration')
-            self.query_job_config = query_job_config
-        else:
-            logger.info('Creating new query job configuration')
-            self.query_job_config = bigquery.job.QueryJobConfig()
-
-        self.client = None
-
-        if self.credential_path:
-            self.client = bigquery.Client(
-                default_query_job_config=self.query_job_config)
-        else:
-            raise ValueError("Please provide the the valid credential_path")
+        logger.info('Creating new query job configuration')
+        self.query_job_config = QueryJobConfig()
+        self.client = Client(default_query_job_config=self.query_job_config)
+        self.job_query_obj = None
 
         tfile.close()
 
-    def _run_query(self, job_config=None):
+    def run_query_sync(self):
+        """Run the bigquery synchronously."""
         if self.client and self.query:
             self.job_query_obj = self.client.query(
-                self.query, job_config=job_config)
+                self.query, job_config=self.query_job_config)
             while not self.job_query_obj.done():
                 time.sleep(0.1)
             return self.job_query_obj.job_id
         else:
-            raise ValueError
+            raise ValueError('Client or query missing')
 
-    def run_query_sync(self):
-        """Run the bigquery synchronously."""
-        return self._run_query()
-
-    def run_query_async(self):
-        """Run the bigquery asynchronously."""
-        job_config = bigquery.QueryJobConfig()
-        job_config.priority = bigquery.QueryPriority.BATCH
-        return self._run_query(job_config=job_config)
-
-    def get_status(self, job_id):
-        """Get the job status of async query."""
-        response = self.client.get_job(job_id)
-        return response.state
-
-    def get_result(self, job_id=None, job_query_obj=None):
+    def get_result(self):
         """Get the result of the job."""
-        if job_id is None:
-            job_query_obj = job_query_obj or self.job_query_obj
-            for row in job_query_obj.result():
+        if self.job_query_obj:
+            for row in self.job_query_obj.result():
                 yield ({k: v for k, v in row.items()})
         else:
-            job_obj = self.client.get_job(job_id)
-            while job_obj.state == 'PENDING':
-                job_obj = self.client.get_job(job_id)
-                logger.info("Job State for Job Id:{} is {}".format(
-                    job_id, job_obj.state))
-                time.sleep(_POLLING_DELAY)
-            yield from self.get_result(job_query_obj=job_obj)
-
-    def __iter__(self):
-        """Iterate over the query result."""
-        yield from self.get_result()
+            raise ValueError('Job is not initialized')
 
 
 class DataProcessing:
