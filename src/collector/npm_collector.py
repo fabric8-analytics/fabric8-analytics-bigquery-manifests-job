@@ -17,8 +17,10 @@
 """Handle NPM manifests and extract dependencies."""
 import re
 import demjson
-from rudra import logger
-from src.bigquery.base_collector import BaseCollector
+import logging
+from src.collector.base_collector import BaseCollector
+
+logger = logging.getLogger(__name__)
 
 
 class NpmCollector(BaseCollector):

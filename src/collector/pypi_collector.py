@@ -15,10 +15,12 @@
 # Author: Dharmendra G Patel <dhpatel@redhat.com>
 #
 """Handle Pypi manifests and extract dependencies."""
-from rudra import logger
+import logging
 from rudra.utils.pypi_parser import pip_req
 from rudra.utils.validation import BQValidation
-from src.bigquery.base_collector import BaseCollector
+from src.collector.base_collector import BaseCollector
+
+logger = logging.getLogger(__name__)
 
 
 class PypiCollector(BaseCollector):

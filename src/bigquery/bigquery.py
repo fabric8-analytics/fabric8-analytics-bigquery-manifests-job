@@ -15,128 +15,79 @@
 # Author: Dharmendra G Patel <dhpatel@redhat.com>
 #
 """Bigquery implementation to read big data for manifest files."""
+import os
+import json
 import time
-from rudra import logger
-from rudra.data_store.aws import AmazonS3
-from src.config.settings import AWS_SETTINGS
-from src.bigquery.base import BigqueryBuilder, DataProcessing
-from src.bigquery.base_collector import BaseCollector
-from src.bigquery.maven_collector import MavenCollector
-from src.bigquery.npm_collector import NpmCollector
-from src.bigquery.pypi_collector import PypiCollector
+import tempfile
+import logging
+from src.config.settings import GCP_SETTINGS
+from google.cloud.bigquery.job import QueryJobConfig
+from google.cloud.bigquery.client import Client
 
-ECOSYSTEM_MANIFEST_MAP = {
-    'maven': 'pom.xml',
-    'npm': 'package.json',
-    'pypi': 'requirements.txt',
-}
+logger = logging.getLogger(__name__)
 
 
-class Bigquery(BigqueryBuilder):
+class Bigquery():
     """Base big query class."""
 
-    def __init__(self):
-        """Initialize MavenBigQuery object."""
-        super().__init__()
-        self.query_job_config.use_legacy_sql = False
-        self.query_job_config.use_query_cache = True
-        self.query = """
-            SELECT con.content AS content, L.path AS path
-            FROM `bigquery-public-data.github_repos.contents` AS con
-            INNER JOIN (
-                SELECT files.id AS id, files.path as path
-                FROM `bigquery-public-data.github_repos.languages` AS langs
-                INNER JOIN `bigquery-public-data.github_repos.files` AS files
-                ON files.repo_name = langs.repo_name
-                    WHERE (
-                        (
-                            REGEXP_CONTAINS(TO_JSON_STRING(language), r'(?i)java') AND
-                            files.path LIKE '%{m}'
-                        ) OR
-                        (
-                            REGEXP_CONTAINS(TO_JSON_STRING(language), r'(?i)python') AND
-                            files.path LIKE '%{p}'
-                        ) OR
-                        (
-                            files.path LIKE '%{n}'
-                        )
-                    )
-            ) AS L
-            ON con.id = L.id;
-        """.format(m=ECOSYSTEM_MANIFEST_MAP['maven'],
-                   p=ECOSYSTEM_MANIFEST_MAP['pypi'],
-                   n=ECOSYSTEM_MANIFEST_MAP['npm'])
+    def __init__(self, query_job_config=None):
+        """Initialize big query object."""
+        self.client = None
+        self.job_query_obj = None
 
+        self._configure_gcp_client(query_job_config)
 
-class BQDataProcessing(DataProcessing):
-    """Big query data fetching and processing class."""
+    def _configure_gcp_client(self, query_job_config):
+        """Configure GCP client."""
+        logger.info('Storing BigQuery Auth Credentials')
+        key_file_contents = {
+            "type": GCP_SETTINGS.type,
+            "project_id": GCP_SETTINGS.project_id,
+            "private_key_id": GCP_SETTINGS.private_key_id,
+            "private_key": GCP_SETTINGS.private_key,
+            "client_email": GCP_SETTINGS.client_email,
+            "client_id": GCP_SETTINGS.client_id,
+            "auth_uri": GCP_SETTINGS.auth_uri,
+            "token_uri": GCP_SETTINGS.token_uri,
+            "auth_provider_x509_cert_url": GCP_SETTINGS.auth_provider_x509_cert_url,
+            "client_x509_cert_url": GCP_SETTINGS.client_x509_cert_url,
+        }
+        tfile = tempfile.NamedTemporaryFile(mode='w+', delete=True)
+        tfile.write(json.dumps(key_file_contents))
+        tfile.flush()
+        tfile.seek(0)
+        self.credential_path = tfile.name
 
-    def __init__(self):
-        """Initialize the BigQueryDataProcessing object."""
-        s3_client = AmazonS3(
-            region_name=AWS_SETTINGS.s3_region,
-            bucket_name=AWS_SETTINGS.s3_bucket_name,
-            aws_access_key_id=AWS_SETTINGS.s3_access_key_id,
-            aws_secret_access_key=AWS_SETTINGS.s3_secret_access_key,
-            local_dev=not AWS_SETTINGS.use_cloud_services
-        )
-        super().__init__(s3_client)
-        self.big_query_instance = Bigquery()
-        self.collectors = {}
-        self.filename = '{}/big-query-data/{}'.format(
-            AWS_SETTINGS.deployment_prefix, AWS_SETTINGS.s3_collated_filename)
+        os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = self.credential_path
+        logger.info('GOOGLE_APPLICATION_CREDENTIALS %s', self.credential_path)
 
-    def process(self, validate=False):
-        """Process Bigquery response data."""
-        for ecosystem in ECOSYSTEM_MANIFEST_MAP.keys():
-            self.collectors[ecosystem] = self._get_collector(ecosystem)
+        logger.info('Creating new query job configuration')
+        if query_job_config:
+            self.query_job_config = query_job_config
+        else:
+            self.query_job_config = QueryJobConfig()
+            self.query_job_config.use_legacy_sql = False
+            self.query_job_config.use_query_cache = True
 
-        start = time.monotonic()
-        index = 0
-        logger.info('Running Bigquery synchronously')
-        self.big_query_instance.run_query_sync()
-        for object in self.big_query_instance.get_result():
-            index += 1
+        self.client = Client(default_query_job_config=self.query_job_config)
 
-            path = object.get('path', None)
-            content = object.get('content', None)
+        tfile.close()
 
-            if not path or not content:
-                logger.warning('Either path %s or content %s is null', path, content)
-                continue
+    def run(self, query):
+        """Run the bigquery synchronously."""
+        if self.client and query:
+            self.job_query_obj = self.client.query(
+                query, job_config=self.query_job_config)
+            while not self.job_query_obj.done():
+                time.sleep(0.1)
+            return self.job_query_obj.job_id
+        else:
+            raise ValueError('Client or query missing')
 
-            ecosystem = None
-            for _ecosystem, manifest in ECOSYSTEM_MANIFEST_MAP.items():
-                if path.endswith(manifest):
-                    ecosystem = _ecosystem
-
-            if not ecosystem:
-                logger.warning('Could not find ecosystem for given path %s', path)
-                continue
-
-            self.collectors[ecosystem].parse_and_collect(content, validate)
-
-        logger.info('Processed %d manifests in time: %f', index, time.monotonic() - start)
-        self._update_s3()
-
-    def _get_collector(self, ecosystem) -> BaseCollector:
-        if ecosystem == 'maven':
-            return MavenCollector()
-
-        if ecosystem == 'npm':
-            return NpmCollector()
-
-        if ecosystem == 'pypi':
-            return PypiCollector()
-
-    def _update_s3(self):
-        logger.info('Updating file content to S3')
-        data = {}
-        for ecosystem, object in self.collectors.items():
-            data[ecosystem] = dict(object.counter.most_common())
-
-        self.update_s3_bucket(data=data,
-                              bucket_name=AWS_SETTINGS.s3_bucket_name,
-                              filename=self.filename)
-
-        logger.info('Succefully Processed the BigQuery')
+    def get_result(self):
+        """Get the result of the job."""
+        if self.job_query_obj:
+            for row in self.job_query_obj.result():
+                yield ({k: v for k, v in row.items()})
+        else:
+            raise ValueError('Job is not initialized')

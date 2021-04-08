@@ -26,7 +26,7 @@ class BaseCollector:
         self.name = name
         self.counter = Counter()
 
-    def _update_counter(self, packages=list):
+    def _update_counter(self, packages):
         """Add packages to a collection."""
         if packages:
             pkg_string = ', '.join(packages)

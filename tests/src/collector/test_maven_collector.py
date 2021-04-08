@@ -15,7 +15,7 @@
 # Author: Dharmendra G Patel <dhpatel@redhat.com>
 #
 """Test maven manifests and extract dependencies."""
-from src.bigquery.maven_collector import MavenCollector
+from src.collector.maven_collector import MavenCollector
 
 MANIFEST_START = """
 <project>

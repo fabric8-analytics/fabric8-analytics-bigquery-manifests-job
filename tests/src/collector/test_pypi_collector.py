@@ -15,7 +15,7 @@
 # Author: Dharmendra G Patel <dhpatel@redhat.com>
 #
 """Test pypi manifests and extract dependencies."""
-from src.bigquery.pypi_collector import PypiCollector
+from src.collector.pypi_collector import PypiCollector
 
 MANIFEST_START = """
 #

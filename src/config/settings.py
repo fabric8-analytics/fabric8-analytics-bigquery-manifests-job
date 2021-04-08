@@ -15,14 +15,21 @@
 # Author: Dharmendra G Patel <dhpatel@redhat.com>
 #
 """Abstracts settings based on env variables."""
+import logging
 from pydantic import BaseSettings, Field
+
+
+class Settings(BaseSettings):
+    """General settings of the manifest job."""
+
+    deployment_prefix = Field(env="DEPLOYMENT_PREFIX", default="dev")
+    use_cloud_services = Field(env="USE_CLOUD_SERVICES", default=True)
+    logging_level = Field(env="JOB_LOGGING_LEVEL", default=logging.getLevelName(logging.INFO))
 
 
 class AWSSettings(BaseSettings):
     """AWS resource settings."""
 
-    deployment_prefix = Field(env="DEPLOYMENT_PREFIX", default="dev")
-    use_cloud_services = Field(env="USE_CLOUD_SERVICES", default=True)
     s3_region = Field(env="AWS_S3_REGION", default="us-east-1")
     s3_access_key_id = Field(env="AWS_S3_ACCESS_KEY_ID", default="")
     s3_secret_access_key = Field(env="AWS_S3_SECRET_ACCESS_KEY", default="")
@@ -45,5 +52,6 @@ class GCPSettings(BaseSettings):
     client_x509_cert_url = Field(env="GCP_CLIENT_X509_CERT_URL", default="")
 
 
+SETTINGS = Settings()
 AWS_SETTINGS = AWSSettings()
 GCP_SETTINGS = GCPSettings()

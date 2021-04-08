@@ -21,7 +21,7 @@ objects:
     jobTemplate:
       spec:
         template:
-          spec: 
+          spec:
             restartPolicy: Never
             containers:
             - name: f8a-bq-manifests-job
@@ -99,6 +99,8 @@ objects:
                     secretKeyRef:
                       name: google-cloud-key
                       key: gcp_client_x509_cert_url
+                - name: JOB_LOGGING_LEVEL
+                  value: ${JOB_LOGGING_LEVEL}
               resources:
                 requests:
                   cpu: ${CPU_REQUEST}
@@ -153,4 +155,10 @@ parameters:
     displayName: Memory limit
     required: true
     name: MEMORY_LIMIT
-    value: "1024Mi" 
+    value: "1024Mi"
+
+  - description: "Job logging level (see: https://docs.python.org/3/library/logging.html#levels)"
+    displayName: Job logging level
+    required: false
+    name: JOB_LOGGING_LEVEL
+    value: "INFO"

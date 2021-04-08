@@ -18,17 +18,17 @@
 
 import time
 from rudra import logger
-from src.bigquery.bigquery import BQDataProcessing
+from src.job.data_job import DataJob
 
 
 def main():
     """Retrieve, process and store the manifest files from Big Query."""
     logger.info('Initializing Big query object')
-    bigquery_data_processing = BQDataProcessing()
+    dataJob = DataJob()
 
     logger.info('Starting big query job')
     start = time.monotonic()
-    bigquery_data_processing.process(True)
+    dataJob.run()
     logger.info('Finished big query job, time taken: %f', time.monotonic() - start)
 
 

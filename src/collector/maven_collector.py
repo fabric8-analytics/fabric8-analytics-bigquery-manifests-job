@@ -15,9 +15,11 @@
 # Author: Dharmendra G Patel <dhpatel@redhat.com>
 #
 """Handle maven manifests and extract dependencies."""
-from rudra import logger
+import logging
 from rudra.utils.mercator import SimpleMercator
-from src.bigquery.base_collector import BaseCollector
+from src.collector.base_collector import BaseCollector
+
+logger = logging.getLogger(__name__)
 
 
 class MavenCollector(BaseCollector):

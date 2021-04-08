@@ -15,7 +15,7 @@
 # Author: Dharmendra G Patel <dhpatel@redhat.com>
 #
 """Test npm manifests and extract dependencies."""
-from src.bigquery.npm_collector import NpmCollector
+from src.collector.npm_collector import NpmCollector
 
 MANIFEST_START = """
 {
