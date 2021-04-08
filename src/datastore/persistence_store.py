@@ -17,7 +17,7 @@
 """Implementation persistence store using S3."""
 import logging
 from rudra.data_store.aws import AmazonS3
-from src.config.settings import AWS_SETTINGS
+from src.config.settings import SETTINGS, AWS_SETTINGS
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +36,7 @@ class PersistenceStore:
                 bucket_name=AWS_SETTINGS.s3_bucket_name,
                 aws_access_key_id=AWS_SETTINGS.s3_access_key_id,
                 aws_secret_access_key=AWS_SETTINGS.s3_secret_access_key,
-                local_dev=not AWS_SETTINGS.use_cloud_services
+                local_dev=not SETTINGS.use_cloud_services
             )
 
     def update(self, data, bucket_name, filename='collated.json'):
