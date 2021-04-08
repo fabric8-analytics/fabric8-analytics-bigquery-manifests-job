@@ -72,7 +72,7 @@ radon cc -s -a -e "venv/*,venv_test/*" .
 echo "*****************************************"
 echo "*** Maintainability Index measurement ***"
 echo "*****************************************"
-radon cc -s -a -e "venv/*,venv_test/*" .
+radon mi -s -e "venv/*,venv_test/*" .
 
 echo "*****************************************"
 echo "*** Unit tests ***"
