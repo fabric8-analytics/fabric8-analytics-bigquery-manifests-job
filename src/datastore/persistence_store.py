@@ -44,7 +44,7 @@ class PersistenceStore:
         # connect after creating or with existing s3 client
         self.s3_client.connect()
         if not self.s3_client.is_connected():
-            raise ValueError('Unable to connect to s3.')
+            raise Exception('Unable to connect to s3.')
 
         json_data = dict()
 
@@ -52,7 +52,7 @@ class PersistenceStore:
             logger.info('%s exists, updating it.', filename)
             json_data = self.s3_client.read_json_file(filename)
             if not json_data:
-                raise ValueError(f'Unable to get the json data path:{bucket_name}/{filename}')
+                raise Exception(f'Unable to get the json data path:{bucket_name}/{filename}')
 
         json_data.update(data)
         self.s3_client.write_json_file(filename, json_data)

@@ -82,7 +82,7 @@ class Bigquery():
                 time.sleep(0.1)
             return self.job_query_obj.job_id
         else:
-            raise ValueError('Client or query missing')
+            raise Exception('Client or query missing')
 
     def get_result(self):
         """Get the result of the job."""
@@ -90,4 +90,4 @@ class Bigquery():
             for row in self.job_query_obj.result():
                 yield ({k: v for k, v in row.items()})
         else:
-            raise ValueError('Job is not initialized')
+            raise Exception('Job is not initialized')
