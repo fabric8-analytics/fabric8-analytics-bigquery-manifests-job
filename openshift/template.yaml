@@ -155,7 +155,7 @@ parameters:
     displayName: Memory limit
     required: true
     name: MEMORY_LIMIT
-    value: "1024Mi"
+    value: "3Gi"
 
   - description: "Job logging level (see: https://docs.python.org/3/library/logging.html#levels)"
     displayName: Job logging level
