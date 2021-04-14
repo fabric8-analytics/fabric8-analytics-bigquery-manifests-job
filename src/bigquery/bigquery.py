@@ -16,11 +16,8 @@
 #
 """Bigquery implementation to read big data for manifest files."""
 import os
-import json
-import time
-import tempfile
 import logging
-from src.config.settings import GCP_SETTINGS
+from src.config.settings import SETTINGS
 from google.cloud.bigquery.job import QueryJobConfig
 from google.cloud.bigquery.client import Client
 
@@ -40,27 +37,7 @@ class Bigquery():
     def _configure_gcp_client(self, query_job_config):
         """Configure GCP client."""
         logger.info('Storing BigQuery Auth Credentials')
-        key_file_contents = {
-            "type": GCP_SETTINGS.type,
-            "project_id": GCP_SETTINGS.project_id,
-            "private_key_id": GCP_SETTINGS.private_key_id,
-            "private_key": GCP_SETTINGS.private_key,
-            "client_email": GCP_SETTINGS.client_email,
-            "client_id": GCP_SETTINGS.client_id,
-            "auth_uri": GCP_SETTINGS.auth_uri,
-            "token_uri": GCP_SETTINGS.token_uri,
-            "auth_provider_x509_cert_url": GCP_SETTINGS.auth_provider_x509_cert_url,
-            "client_x509_cert_url": GCP_SETTINGS.client_x509_cert_url,
-        }
-        tfile = tempfile.NamedTemporaryFile(mode='w+', delete=True)
-        tfile.write(json.dumps(key_file_contents))
-        tfile.flush()
-        tfile.seek(0)
-        self.credential_path = tfile.name
-
-        os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = self.credential_path
-        logger.info('GOOGLE_APPLICATION_CREDENTIALS %s', self.credential_path)
-
+        os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = SETTINGS.bigquery_credentials_filepath
         logger.info('Creating new query job configuration')
         if query_job_config:
             self.query_job_config = query_job_config
@@ -71,23 +48,15 @@ class Bigquery():
 
         self.client = Client(default_query_job_config=self.query_job_config)
 
-        tfile.close()
-
     def run(self, query):
         """Run the bigquery synchronously."""
         if self.client and query:
-            self.job_query_obj = self.client.query(
-                query, job_config=self.query_job_config)
-            while not self.job_query_obj.done():
-                time.sleep(0.1)
+            self.job_query_obj = self.client.query(query, job_config=self.query_job_config)
             return self.job_query_obj.job_id
         else:
             raise Exception('Client or query missing')
 
     def get_result(self):
         """Get the result of the job."""
-        if self.job_query_obj:
-            for row in self.job_query_obj.result():
-                yield ({k: v for k, v in row.items()})
-        else:
-            raise Exception('Job is not initialized')
+        assert self.job_query_obj is not None, 'Job is not initialized'
+        yield from self.job_query_obj.result()

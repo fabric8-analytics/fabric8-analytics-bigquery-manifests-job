@@ -1,7 +1,12 @@
 REGISTRY ?= quay.io
 DEFAULT_TAG = latest
 DOCKERFILE := Dockerfile
-REPOSITORY ?= openshiftio/fabric8-analytics-bigquery-manifests-job
+
+ifeq ($(TARGET),rhel)
+  REPOSITORY ?= openshiftio/rhel-fabric8-analytics-f8a-bq-manifests-job
+else
+  REPOSITORY ?= openshiftio/fabric8-analytics-f8a-bq-manifests-job
+endif
 
 .PHONY: all docker-build fast-docker-build test get-image-name get-image-repository get-push-registry
 

@@ -31,3 +31,7 @@ class BaseCollector:
         if packages:
             pkg_string = ', '.join(packages)
             self.counter.update([pkg_string])
+
+    def parse_and_collect(self, _content, _validate):
+        """To be implemented by all its child ecosystem."""
+        raise Exception("Missing parse_and_collect() method implementation!!")

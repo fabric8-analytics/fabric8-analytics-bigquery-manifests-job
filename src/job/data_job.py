@@ -17,7 +17,7 @@
 """Main job that queries, collected and update manifest files from big query."""
 import time
 import logging
-from src.config.settings import SETTINGS, AWS_SETTINGS
+from src.config.settings import AWS_SETTINGS
 from src.datastore.persistence_store import PersistenceStore
 from src.bigquery.bigquery import Bigquery
 from src.collector.base_collector import BaseCollector
@@ -122,8 +122,7 @@ class DataJob():
         for ecosystem, object in self.collectors.items():
             data[ecosystem] = dict(object.counter.most_common())
 
-        filename = '{}/big-query-data/{}'.format(
-            SETTINGS.deployment_prefix, AWS_SETTINGS.s3_collated_filename)
+        filename = 'big-query-data/{}'.format(AWS_SETTINGS.s3_collated_filename)
 
         self.data_store.update(data=data,
                                bucket_name=AWS_SETTINGS.s3_bucket_name,

@@ -25,6 +25,7 @@ class Settings(BaseSettings):
     deployment_prefix = Field(env="DEPLOYMENT_PREFIX", default="dev")
     use_cloud_services = Field(env="USE_CLOUD_SERVICES", default=True)
     logging_level = Field(env="JOB_LOGGING_LEVEL", default=logging.getLevelName(logging.INFO))
+    bigquery_credentials_filepath = Field(env="BIGQUERY_CREDENTIALS_FILEPATH", default="")
 
 
 class AWSSettings(BaseSettings):
@@ -37,21 +38,5 @@ class AWSSettings(BaseSettings):
     s3_collated_filename = Field(env="AWS_S3_COLLATED_FILENAME", default="collated.json")
 
 
-class GCPSettings(BaseSettings):
-    """Google cloud platform access settings."""
-
-    type = Field(env="GCP_TYPE", default="")
-    project_id = Field(env="GCP_PROJECT_ID", default="")
-    private_key_id = Field(env="GCP_PRIVATE_KEY_ID", default="")
-    private_key = Field(env="GCP_PRIVATE_KEY", default="")
-    client_email = Field(env="GCP_CLIENT_EMAIL", default="")
-    client_id = Field(env="GCP_CLIENT_ID", default="")
-    auth_uri = Field(env="GCP_AUTH_URI", default="")
-    token_uri = Field(env="GCP_TOKEN_URI", default="")
-    auth_provider_x509_cert_url = Field(env="GCP_AUTH_PROVIDER_X509_CERT_URL", default="")
-    client_x509_cert_url = Field(env="GCP_CLIENT_X509_CERT_URL", default="")
-
-
 SETTINGS = Settings()
 AWS_SETTINGS = AWSSettings()
-GCP_SETTINGS = GCPSettings()

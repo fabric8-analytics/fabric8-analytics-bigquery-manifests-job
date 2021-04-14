@@ -23,6 +23,13 @@ objects:
         template:
           spec:
             restartPolicy: Never
+            volumes:
+            - name: credentials
+              secret:
+                secretName: google-big-query
+                items:
+                -  key: bq.json
+                   path: gcloud/google-services.json
             containers:
             - name: f8a-bq-manifests-job
               image: "${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${IMAGE_TAG}"
@@ -39,6 +46,8 @@ objects:
                     secretKeyRef:
                       key: s3-secret-access-key
                       name: aws
+                - name: AWS_S3_BUCKET_NAME
+                  value: ${AWS_S3_BUCKET_NAME}
                 - name: DEPLOYMENT_PREFIX
                   valueFrom:
                     configMapKeyRef:
@@ -49,58 +58,10 @@ objects:
                     configMapKeyRef:
                       name: bayesian-config
                       key: aws-default-region
-                - name: GCP_TYPE
-                  valueFrom:
-                    secretKeyRef:
-                      name: google-cloud-key
-                      key: gcp_type
-                - name: GCP_PROJECT_ID
-                  valueFrom:
-                    secretKeyRef:
-                      name: google-cloud-key
-                      key: gcp_project_id
-                - name: GCP_PRIVATE_KEY_ID
-                  valueFrom:
-                    secretKeyRef:
-                      name: google-cloud-key
-                      key: gcp_private_key_id
-                - name: GCP_PRIVATE_KEY
-                  valueFrom:
-                    secretKeyRef:
-                      name: google-cloud-key
-                      key: gcp_private_key
-                - name: GCP_CLIENT_EMAIL
-                  valueFrom:
-                    secretKeyRef:
-                      name: google-cloud-key
-                      key: gcp_client_email
-                - name: GCP_CLIENT_ID
-                  valueFrom:
-                    secretKeyRef:
-                      name: google-cloud-key
-                      key: gcp_client_id
-                - name: GCP_AUTH_URI
-                  valueFrom:
-                    secretKeyRef:
-                      name: google-cloud-key
-                      key: gcp_auth_uri
-                - name: GCP_TOKEN_URI
-                  valueFrom:
-                    secretKeyRef:
-                      name: google-cloud-key
-                      key: gcp_token_uri
-                - name: GCP_AUTH_PROVIDER_X509_CERT_URL
-                  valueFrom:
-                    secretKeyRef:
-                      name: google-cloud-key
-                      key: gcp_auth_provider_x509_cert_url
-                - name: GCP_CLIENT_X509_CERT_URL
-                  valueFrom:
-                    secretKeyRef:
-                      name: google-cloud-key
-                      key: gcp_client_x509_cert_url
                 - name: JOB_LOGGING_LEVEL
                   value: ${JOB_LOGGING_LEVEL}
+                - name: BIGQUERY_CREDENTIALS_FILEPATH
+                  value: "/etc/credentials/gcloud/google-services.json"
               resources:
                 requests:
                   cpu: ${CPU_REQUEST}
@@ -108,6 +69,10 @@ objects:
                 limits:
                   cpu: ${CPU_LIMIT}
                   memory: ${MEMORY_LIMIT}
+              volumeMounts:
+                - name: credentials
+                  mountPath: "/etc/credentials/"
+                  readOnly: true
 parameters:
   - description: Docker registry
     displayName: Docker registry
@@ -162,3 +127,9 @@ parameters:
     required: false
     name: JOB_LOGGING_LEVEL
     value: "INFO"
+
+  - description: "AWS Bucket for storing collected big query data."
+    displayName: AWS bucket name
+    required: true
+    name: AWS_S3_BUCKET_NAME
+    value: "developer-analytics-audit-report"
