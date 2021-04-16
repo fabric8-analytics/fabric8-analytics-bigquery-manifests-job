@@ -1,6 +1,6 @@
 boto==2.49.0
 chardet==3.0.4
-cryptography==2.5
+cryptography==3.3.2
 unknown1
 unknown2
 flask
