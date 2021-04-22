@@ -84,7 +84,7 @@ parameters:
     displayName: Docker image
     required: true
     name: DOCKER_IMAGE
-    value: "openshiftio/fabric8-analytics-f8a-bq-manifests-job"
+    value: "app-sre/fabric8-analytics-bigquery-manifests-job-image"
 
   - description: Image tag
     displayName: Image tag
