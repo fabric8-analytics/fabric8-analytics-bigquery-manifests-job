@@ -17,7 +17,7 @@ objects:
     successfulJobsHistoryLimit: 4
     failedJobsHistoryLimit: 0
     concurrencyPolicy: "Forbid"
-    startingDeadlineSeconds: STARTING_DEADLINE_SECONDS
+    startingDeadlineSeconds: $STARTING_DEADLINE_SECONDS
     schedule: "${CRON_SCHEDULE}"
     jobTemplate:
       spec:
