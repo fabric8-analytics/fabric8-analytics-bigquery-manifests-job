@@ -17,6 +17,7 @@ objects:
     successfulJobsHistoryLimit: 4
     failedJobsHistoryLimit: 0
     concurrencyPolicy: "Forbid"
+    startingDeadlineSeconds: ${STARTING_DEADLINE_SECONDS}
     schedule: "${CRON_SCHEDULE}"
     jobTemplate:
       spec:
@@ -91,6 +92,12 @@ parameters:
     required: true
     name: IMAGE_TAG
     value: "latest"
+
+  - description: Allows cronjob to be restarted missed triggers
+    displayName: Starting deadline limit in seconds
+    required: true
+    name: STARTING_DEADLINE_SECONDS
+    value: 5
 
   - description: Schedule
     displayName: Schedule
