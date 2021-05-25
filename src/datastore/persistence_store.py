@@ -72,17 +72,23 @@ class PersistenceStore:
         """Download file into S3 Bucket."""
         self._check_and_connect()
         try:
-            return self.s3_client._s3.Bucket(AWS_SETTINGS.s3_bucket_name).download_file(src, target)
+            return self.s3_client._s3.Bucket(AWS_SETTINGS.s3_bucket_name).download_file(
+                src, target)
         except Exception as exc:
-            logger.error(
-                "An Exception occurred while downloading a file \n{}".format(str(exc)))
+            logger.error('An Exception occurred while downloading a file\n'
+                         '{}'.format(str(exc)))
 
     def list_bucket_objects(self, prefix=None):
         """List all the objects in bucket."""
         self._check_and_connect()
         return self.s3_client.list_bucket_objects(prefix)
 
-    def s3_delete_objects(self, object_keys):
-        """Delete a object in bucket."""
+    def s3_delete_folder(self, folder_path=None):
+        """Delete all objects in the folder."""
         self._check_and_connect()
-        return self.s3_client.s3_delete_objects(object_keys)
+        try:
+            return self.s3_client._s3.Bucket(AWS_SETTINGS.s3_bucket_name).objects.filter(
+                Prefix=folder_path).delete()
+        except Exception as exc:
+            logger.error('An Exception occurred while deleting a folder {}\n'
+                         '{}'.format(folder_path, str(exc)))

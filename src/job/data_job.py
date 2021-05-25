@@ -19,7 +19,7 @@ import os
 import time
 import logging
 from shutil import make_archive, unpack_archive, rmtree
-from src.config.settings import AWS_SETTINGS
+from src.config.settings import SETTINGS, AWS_SETTINGS
 from src.datastore.persistence_store import PersistenceStore
 from src.bigquery.bigquery import Bigquery
 from src.collector.base_collector import BaseCollector
@@ -29,7 +29,6 @@ from src.collector.pypi_collector import PypiCollector
 
 logger = logging.getLogger(__name__)
 
-IN_MEMORY_DIR = '/dev/shm'
 S3_TEMP_FOLDER = 'big-query-data/manifest-data-zip'
 CONTENT_BATCH_SIZE = 200 * 1024 * 1024   # 200 MB
 
@@ -109,10 +108,9 @@ class DataJob():
             index += 1
 
             # Create unzip directory
-            unzip_dir = '{}/{}_unzip_dir/'.format(IN_MEMORY_DIR, index)
-            directory = os.path.dirname(unzip_dir)
-            if not os.path.exists(directory):
-                os.makedirs(directory)
+            unzip_dir = '{}/{}_unzip_dir/'.format(SETTINGS.local_working_directory, index)
+            if not os.path.exists(unzip_dir):
+                os.makedirs(unzip_dir)
 
             # Download zip content
             download_zip_path = '{}{}_downloaded.zip'.format(unzip_dir, index)
@@ -148,10 +146,10 @@ class DataJob():
 
         # Create local structure to store content
         for _ecosystem, _ in ECOSYSTEM_MANIFEST_MAP.items():
-            dir = '{}/{}/'.format(IN_MEMORY_DIR, _ecosystem)
-            directory = os.path.dirname(dir)
-            if not os.path.exists(directory):
-                os.makedirs(directory)
+            dir = '{}/{}/'.format(SETTINGS.local_working_directory, _ecosystem)
+            if not os.path.exists(dir):
+                os.makedirs(dir)
+                print(f'Created dir {dir}')
 
         big_query.run(self._get_big_query())
         for object in big_query.get_result():
@@ -181,7 +179,7 @@ class DataJob():
             self.ecosystemContentData[ecosystem]['size'] += contentSize
             self.ecosystemContentData[ecosystem]['count'] += 1
 
-            filename = '{}/{}/{}_{}'.format(IN_MEMORY_DIR,
+            filename = '{}/{}/{}_{}'.format(SETTINGS.local_working_directory,
                                             ecosystem,
                                             self.ecosystemContentData[ecosystem]['count'],
                                             path.split('/')[-1])
@@ -202,11 +200,12 @@ class DataJob():
 
     def _upload_batch_data(self, ecosystem):
         # Compress the current content, delete the content and reset batch size.
-        compressFileName = '{}/{}/{}_{}'.format(IN_MEMORY_DIR,
+        compressFileName = '{}/{}/{}_{}'.format(SETTINGS.local_working_directory,
                                                 ecosystem,
                                                 self.ecosystemBatchData[ecosystem]['batch_index'],
                                                 ecosystem)
-        make_archive(compressFileName, 'zip', root_dir=IN_MEMORY_DIR, base_dir=ecosystem)
+        make_archive(compressFileName, 'zip', root_dir=SETTINGS.local_working_directory,
+                     base_dir=ecosystem)
 
         compressFileName = compressFileName + '.zip'
         filename = '{}/{}/{}_{}.zip'.format(S3_TEMP_FOLDER, ecosystem,
@@ -214,9 +213,9 @@ class DataJob():
                                             ecosystem)
         self.data_store.upload_file(compressFileName, filename)
 
-        dir = '{}/{}/'.format(IN_MEMORY_DIR, ecosystem)
+        dir = '{}/{}/'.format(SETTINGS.local_working_directory, ecosystem)
         rmtree(dir)
-        os.makedirs(os.path.dirname(dir))
+        os.makedirs(dir)
 
         self.ecosystemBatchData[ecosystem]['batch_index'] += 1
         self.ecosystemBatchData[ecosystem]['size'] = 0
@@ -227,8 +226,7 @@ class DataJob():
 
     def _cleanup_s3(self):
         try:
-            self.data_store.s3_delete_objects(
-                self.data_store.list_bucket_objects(prefix=S3_TEMP_FOLDER))
+            self.data_store.s3_delete_folder(S3_TEMP_FOLDER)
         except Exception as e:
             logger.warning('Exception :: Cleaning s3 %s throws %s',
                            S3_TEMP_FOLDER, str(e))
@@ -256,8 +254,7 @@ class DataJob():
                         )
                     )
             ) AS L
-            ON con.id = L.id
-            LIMIT 100000;
+            ON con.id = L.id;
         """.format(m=ECOSYSTEM_MANIFEST_MAP['maven'],
                    p=ECOSYSTEM_MANIFEST_MAP['pypi'],
                    n=ECOSYSTEM_MANIFEST_MAP['npm'])

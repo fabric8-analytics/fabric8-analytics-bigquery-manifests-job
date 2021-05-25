@@ -26,6 +26,7 @@ class Settings(BaseSettings):
     use_cloud_services = Field(env="USE_CLOUD_SERVICES", default=True)
     logging_level = Field(env="JOB_LOGGING_LEVEL", default=logging.getLevelName(logging.INFO))
     bigquery_credentials_filepath = Field(env="BIGQUERY_CREDENTIALS_FILEPATH", default="")
+    local_working_directory = Field(env="LOCAL_WORKING_DIRECTORY", default="/dev/shm")
 
 
 class AWSSettings(BaseSettings):

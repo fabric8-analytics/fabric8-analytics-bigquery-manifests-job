@@ -9,7 +9,7 @@ set -e
 set -x
 
 # test coverage threshold
-COVERAGE_THRESHOLD=85
+COVERAGE_THRESHOLD=90
 
 export TERM=xterm
 TERM=${TERM:-xterm}
@@ -79,8 +79,11 @@ echo "*** Unit tests ***"
 echo "*****************************************"
 
 echo "Starting test suite"
-DISABLE_AUTHENTICATION=1 PYTHONDONTWRITEBYTECODE=1 python "$(which pytest)" --cov=src/ --cov-report=xml --cov-fail-under=$COVERAGE_THRESHOLD -vv tests/
+rm -rf "${here}/venv_test/maven"
+mkdir "${here}/venv_test/maven"
+rm -rf "${here}/venv_test/npm"
+mkdir "${here}/venv_test/npm"
+rm -rf "${here}/venv_test/pypi"
+mkdir "${here}/venv_test/pypi"
+DISABLE_AUTHENTICATION=1 PYTHONDONTWRITEBYTECODE=1 LOCAL_WORKING_DIRECTORY="${here}/venv_test" python "$(which pytest)" --cov=src/ --cov-report=xml --cov-fail-under=$COVERAGE_THRESHOLD -vv tests/
 printf "%stests passed%s\n\n" "${GREEN}" "${NORMAL}"
-
-
-rm -rf venv_test
