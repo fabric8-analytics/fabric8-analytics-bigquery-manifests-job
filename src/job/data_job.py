@@ -67,11 +67,11 @@ class DataJob():
         self._cleanup_s3()
 
         bq_start = time.monotonic()
-        #self._get_big_query_data()
+        self._get_big_query_data()
         bq_end = time.monotonic()
 
         parse_start = time.monotonic()
-        #self._parse()
+        self._parse()
         parse_end = time.monotonic()
 
         self._cleanup_s3()
