@@ -9,7 +9,7 @@ set -e
 set -x
 
 # test coverage threshold
-COVERAGE_THRESHOLD=15
+COVERAGE_THRESHOLD=85
 
 export TERM=xterm
 TERM=${TERM:-xterm}

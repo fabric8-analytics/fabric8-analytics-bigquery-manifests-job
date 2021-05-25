@@ -93,7 +93,7 @@ class TestPersistenceStore(unittest.TestCase):
         ps = PersistenceStore(s3_client=S3NotConnected())
 
         with pytest.raises(Exception) as e:
-            ps.update({}, 'bucket_name', 'filename.json')
+            ps.update({}, 'filename.json')
 
         assert str(e.value) == 'Unable to connect to s3.'
 
@@ -102,7 +102,7 @@ class TestPersistenceStore(unittest.TestCase):
         ps = PersistenceStore(s3_client=S3NewUpload())
 
         try:
-            ps.update({}, 'bucket_name', 'filename.json')
+            ps.update({}, 'filename.json')
         except Exception:
             assert False, 'Exception raised'
 
@@ -111,15 +111,16 @@ class TestPersistenceStore(unittest.TestCase):
         ps = PersistenceStore(s3_client=S3ExistingEmptyUpload())
 
         with pytest.raises(Exception) as e:
-            ps.update({}, 'bucket_name', 'filename.json')
+            ps.update({}, 'filename.json')
 
-        assert str(e.value) == 'Unable to get the json data path:bucket_name/filename.json'
+        assert str(e.value) == 'Unable to get the json data path: ' \
+                               'developer-analytics-audit-report/filename.json'
 
     def test_upload_existing_file(self):
         """Upload data in S3 with existing data."""
         ps = PersistenceStore(s3_client=S3ExistingUpload())
 
         try:
-            ps.update({'test': 'super cool'}, 'bucket_name', 'filename.json')
+            ps.update({'test': 'super cool'}, 'filename.json')
         except Exception:
             assert False, 'Exception raised'

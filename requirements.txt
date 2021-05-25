@@ -24,7 +24,7 @@ aws-xray-sdk==0.95
     # via
     #   moto
     #   rudra
-babel==2.6.0
+babel==2.9.1
     # via
     #   rudra
     #   sphinx
@@ -60,6 +60,8 @@ chardet==3.0.4
     # via
     #   requests
     #   rudra
+configparser==5.0.2
+    # via shutils
 cookies==2.2.1
     # via
     #   moto
@@ -214,7 +216,7 @@ pycryptodome==3.7.3
     # via
     #   python-jose
     #   rudra
-pydantic==1.8.1
+pydantic==1.8.2
     # via -r requirements.in
 pygithub==1.54.1
     # via rudra
@@ -224,6 +226,8 @@ pygments==2.8.1
     #   sphinx
 pyjwt==1.7.1
     # via pygithub
+pymysql==1.0.2
+    # via shutils
 pyparsing==2.3.1
     # via
     #   packaging
@@ -280,6 +284,8 @@ s3transfer==0.1.13
     #   rudra
 scipy==1.2.1
     # via rudra
+shutils==0.1.0
+    # via -r requirements.in
 six==1.12.0
     # via
     #   cryptography

@@ -31,6 +31,9 @@ objects:
                 items:
                 -  key: bq.json
                    path: gcloud/google-services.json
+            - name: dshm
+              emptyDir:
+                medium: Memory
             containers:
             - name: f8a-bq-manifests-job
               image: "${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${IMAGE_TAG}"
@@ -74,6 +77,8 @@ objects:
                 - name: credentials
                   mountPath: "/etc/credentials/"
                   readOnly: true
+                - name: dshm
+                  mountPath: "/dev/shm/"
 parameters:
   - description: Docker registry
     displayName: Docker registry
@@ -109,13 +114,13 @@ parameters:
     displayName: CPU request
     required: true
     name: CPU_REQUEST
-    value: "500m"
+    value: "200m"
 
   - description: CPU limit
     displayName: CPU limit
     required: true
     name: CPU_LIMIT
-    value: "800m"
+    value: "1000m"
 
   - description: Memory request
     displayName: Memory request

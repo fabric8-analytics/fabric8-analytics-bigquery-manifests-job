@@ -39,12 +39,16 @@ class PersistenceStore:
                 local_dev=not SETTINGS.use_cloud_services
             )
 
-    def update(self, data, bucket_name, filename='collated.json'):
+    def _check_and_connect(self):
+        if not self.s3_client.is_connected():
+            self.s3_client.connect()
+            if not self.s3_client.is_connected():
+                raise Exception('Unable to connect to s3.')
+
+    def update(self, data, filename='collated.json'):
         """Upload s3 bucket."""
         # connect after creating or with existing s3 client
-        self.s3_client.connect()
-        if not self.s3_client.is_connected():
-            raise Exception('Unable to connect to s3.')
+        self._check_and_connect()
 
         json_data = dict()
 
@@ -52,8 +56,33 @@ class PersistenceStore:
             logger.info('%s exists, updating it.', filename)
             json_data = self.s3_client.read_json_file(filename)
             if not json_data:
-                raise Exception(f'Unable to get the json data path:{bucket_name}/{filename}')
+                raise Exception('Unable to get the json data path: '
+                                '{}/{}'.format(AWS_SETTINGS.s3_bucket_name, filename))
 
         json_data.update(data)
         self.s3_client.write_json_file(filename, json_data)
         logger.info('Updated file Succefully!')
+
+    def upload_file(self, src, target):
+        """Upload given file to s3."""
+        self._check_and_connect()
+        self.s3_client.upload_file(src, target)
+
+    def download_file(self, src, target):
+        """Download file into S3 Bucket."""
+        self._check_and_connect()
+        try:
+            return self.s3_client._s3.Bucket(AWS_SETTINGS.s3_bucket_name).download_file(src, target)
+        except Exception as exc:
+            logger.error(
+                "An Exception occurred while downloading a file \n{}".format(str(exc)))
+
+    def list_bucket_objects(self, prefix=None):
+        """List all the objects in bucket."""
+        self._check_and_connect()
+        return self.s3_client.list_bucket_objects(prefix)
+
+    def s3_delete_objects(self, object_keys):
+        """Delete a object in bucket."""
+        self._check_and_connect()
+        return self.s3_client.s3_delete_objects(object_keys)
