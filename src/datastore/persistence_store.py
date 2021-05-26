@@ -50,8 +50,6 @@ class PersistenceStore:
         # connect after creating or with existing s3 client
         self._check_and_connect()
 
-        json_data = dict()
-
         if self.s3_client.object_exists(filename):
             logger.info('%s exists, updating it.', filename)
             json_data = self.s3_client.read_json_file(filename)
@@ -59,8 +57,10 @@ class PersistenceStore:
                 raise Exception('Unable to get the json data path: '
                                 '{}/{}'.format(AWS_SETTINGS.s3_bucket_name, filename))
 
-        json_data.update(data)
-        self.s3_client.write_json_file(filename, json_data)
+            for key in data.keys():
+                data[key].update(json_data.get(key, {}))
+
+        self.s3_client.write_json_file(filename, data)
         logger.info('Updated file Succefully!')
 
     def upload_file(self, src, target):
