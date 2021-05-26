@@ -71,7 +71,25 @@ class S3ExistingUpload(S3ExistingEmptyUpload):
 
     def read_json_file(self, fname):
         """Read json file mock function."""
-        return {'test': 'cool'}
+        return {
+            'maven': {
+                'pck1, pck2, pck3': 5,
+                'pck3, pck56': 20,
+                'pck2, pck4, pck7': 10
+            },
+            'npm': {
+                'pck1, pck2, pck3': 22,
+                'pck2, pck4, pck7': 89
+            },
+            'pypi': {
+                'pck3, pck56': 65,
+                'pck2, pck4, pck7': 110
+            }
+        }
+
+    def write_json_file(self, fname, content):
+        """Mock to write json file."""
+        pass
 
 
 class TestPersistenceStore(unittest.TestCase):
@@ -121,6 +139,22 @@ class TestPersistenceStore(unittest.TestCase):
         ps = PersistenceStore(s3_client=S3ExistingUpload())
 
         try:
-            ps.update({'test': 'super cool'}, 'filename.json')
+            new_data = {
+                'maven': {
+                    'pck1, pck2, pck3': 7,
+                    'pck30, pck6': 20,
+                    'pck2, pck4, pck7': 12
+                },
+                'npm': {
+                    'pck1, pck2, pck3': 45,
+                    'pck77': 23,
+                    'pck2, pck4, pck7': 99
+                },
+                'pypi': {
+                    'pck3, pck56': 65,
+                    'pck2, pck4, pck7': 110
+                }
+            }
+            ps.update(new_data, 'filename.json')
         except Exception:
             assert False, 'Exception raised'
