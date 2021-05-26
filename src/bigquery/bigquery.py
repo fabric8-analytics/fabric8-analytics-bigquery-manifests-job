@@ -42,9 +42,8 @@ class Bigquery():
         if query_job_config:
             self.query_job_config = query_job_config
         else:
-            self.query_job_config = QueryJobConfig()
-            self.query_job_config.use_legacy_sql = False
-            self.query_job_config.use_query_cache = True
+            self.query_job_config = QueryJobConfig(use_legacy_sql=False,
+                                                   use_query_cache=True)
 
         self.client = Client(default_query_job_config=self.query_job_config)
 

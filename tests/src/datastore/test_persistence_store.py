@@ -71,7 +71,25 @@ class S3ExistingUpload(S3ExistingEmptyUpload):
 
     def read_json_file(self, fname):
         """Read json file mock function."""
-        return {'test': 'cool'}
+        return {
+            'maven': {
+                'pck1, pck2, pck3': 5,
+                'pck3, pck56': 20,
+                'pck2, pck4, pck7': 10
+            },
+            'npm': {
+                'pck1, pck2, pck3': 22,
+                'pck2, pck4, pck7': 89
+            },
+            'pypi': {
+                'pck3, pck56': 65,
+                'pck2, pck4, pck7': 110
+            }
+        }
+
+    def write_json_file(self, fname, content):
+        """Mock to write json file."""
+        pass
 
 
 class TestPersistenceStore(unittest.TestCase):
@@ -93,7 +111,7 @@ class TestPersistenceStore(unittest.TestCase):
         ps = PersistenceStore(s3_client=S3NotConnected())
 
         with pytest.raises(Exception) as e:
-            ps.update({}, 'bucket_name', 'filename.json')
+            ps.update({}, 'filename.json')
 
         assert str(e.value) == 'Unable to connect to s3.'
 
@@ -102,7 +120,7 @@ class TestPersistenceStore(unittest.TestCase):
         ps = PersistenceStore(s3_client=S3NewUpload())
 
         try:
-            ps.update({}, 'bucket_name', 'filename.json')
+            ps.update({}, 'filename.json')
         except Exception:
             assert False, 'Exception raised'
 
@@ -111,15 +129,32 @@ class TestPersistenceStore(unittest.TestCase):
         ps = PersistenceStore(s3_client=S3ExistingEmptyUpload())
 
         with pytest.raises(Exception) as e:
-            ps.update({}, 'bucket_name', 'filename.json')
+            ps.update({}, 'filename.json')
 
-        assert str(e.value) == 'Unable to get the json data path:bucket_name/filename.json'
+        assert str(e.value) == 'Unable to get the json data path: ' \
+                               'developer-analytics-audit-report/filename.json'
 
     def test_upload_existing_file(self):
         """Upload data in S3 with existing data."""
         ps = PersistenceStore(s3_client=S3ExistingUpload())
 
         try:
-            ps.update({'test': 'super cool'}, 'bucket_name', 'filename.json')
+            new_data = {
+                'maven': {
+                    'pck1, pck2, pck3': 7,
+                    'pck30, pck6': 20,
+                    'pck2, pck4, pck7': 12
+                },
+                'npm': {
+                    'pck1, pck2, pck3': 45,
+                    'pck77': 23,
+                    'pck2, pck4, pck7': 99
+                },
+                'pypi': {
+                    'pck3, pck56': 65,
+                    'pck2, pck4, pck7': 110
+                }
+            }
+            ps.update(new_data, 'filename.json')
         except Exception:
             assert False, 'Exception raised'
